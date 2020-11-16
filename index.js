@@ -1,11 +1,13 @@
 var EventSource = require('eventsource')
 var express = require('express');
 var app = express();
+const assert = require('assert');
  
 const { MongoClient } = require("mongodb");
 
 async function run(data) {
-  const client = new MongoClient(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+  const uri = "mongodb+srv://streamdata:nkHQRH3vfR2w3d@cluster0.xcyxr.mongodb.net/blaseball?retryWrites=true&w=majority";  // The MongoClient is the object that references the connection to our
+  const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
   await client.connect();
   const dbName = "blaseball";
   const collectionName = "streamData";
@@ -17,9 +19,15 @@ async function run(data) {
   }
   try {
     const insertManyResult = await collection.insertOne(dataWithId);
-    console.log(`${insertManyResult.insertedCount} documents successfully inserted.\n`);
+    console.log(`${insertManyResult.insertedCount} documents successfully inserted with id ${dataWithId._id}.`);
   } catch (err) {
-    console.error(`Something went wrong trying to insert the new documents: ${err}\n`);
+    console.error(`Something went wrong trying to insert the new documents: ${err}`);
+  }
+  try {
+    const allDocs = await collection.find({}).toArray();
+    console.log(`${allDocs.length} total documents`);
+  } catch (err) {
+    console.error(`Something went wrong trying to query the db: ${err}\n`);
   }
   await client.close();
 }
@@ -31,7 +39,7 @@ const evtSource = new EventSource("https://www.blaseball.com/events/streamData")
 
 evtSource.onmessage = function(event) {
     data = JSON.parse(event.data);
-    console.log(data);
+    //console.log(data);
     if (latest == null) {
         latest = data;
     }
