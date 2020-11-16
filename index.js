@@ -6,8 +6,7 @@ const assert = require('assert');
 const { MongoClient } = require("mongodb");
 
 async function run(data) {
-  const uri = "mongodb+srv://streamdata:nkHQRH3vfR2w3d@cluster0.xcyxr.mongodb.net/blaseball?retryWrites=true&w=majority";  // The MongoClient is the object that references the connection to our
-  const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+  const client = new MongoClient(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
   await client.connect();
   const dbName = "blaseball";
   const collectionName = "streamData";
